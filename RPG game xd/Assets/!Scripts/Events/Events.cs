@@ -8,6 +8,7 @@ public static class Events
     public static MouseMoveEvent MouseMoveEvent = new();
     public static SwordAttackPressEvent SwordAttackPressEvent = new();
     public static MagicAttackPressEvent MagicAttackPressEvent = new();
+    public static SystemsInitializedEvent SystemsInitializedEvent = new();
 }
 
 public class CrouchPressEvent : GameEvent { }
@@ -23,6 +24,7 @@ public class MouseMoveEvent : GameEvent
     public Vector2 MouseInput;
 }
 
+public class SystemsInitializedEvent : GameEvent {}
 
 //public class StartDialogueEvent : GameEvent
 //{

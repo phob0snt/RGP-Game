@@ -1,10 +1,12 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Zenject;
 
-public class InputManager : IInputManager, IInitializable
+public class InputManager : IInputManager, IAsyncInitializable
 {
-    private readonly InputActionAsset _inputActionAsset;
+    private readonly IAssetLoader _loader;
+    private InputActionAsset _inputActionAsset;
 
     private InputAction _locomotion;
     private InputAction _crouch;
@@ -13,13 +15,14 @@ public class InputManager : IInputManager, IInitializable
     private InputAction _magicAttack;
 
 
-    public InputManager(InputActionAsset inputActions)
+    public InputManager(IAssetLoader loader)
     {
-        _inputActionAsset = inputActions;
+        _loader = loader;
     }
 
-    public void Initialize()
+    public async Task InitializeAsync()
     {
+        _inputActionAsset = await _loader.LoadAssetAsync<InputActionAsset>("InputActionAsset");
         _locomotion = _inputActionAsset.FindAction("Locomotion");
         _crouch = _inputActionAsset.FindAction("Crouch");
         _cameraRotation = _inputActionAsset.FindAction("Camera");

@@ -1,13 +1,12 @@
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.InputSystem.XR;
 using Zenject;
 
 public class PlayerController : MonoBehaviour, IPlayerController
 {
     [SerializeField] private float _moveSpeed = 4;
+    [SerializeField] private float _rotationSpeed = 7;
     [SerializeField] private float _gravity = -9.81f;
     [SerializeField] private float _crouchSpeed = 2.5f;
     [SerializeField] private float _sensivity = 1;
@@ -86,7 +85,6 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
     private void Update()
     {
-        Look();
         _stateMachine.Update();
     }
 
@@ -111,9 +109,23 @@ public class PlayerController : MonoBehaviour, IPlayerController
         CalculateGravity();
         Vector2 _smoothInputVector = Vector2.zero;
         _smoothDir = Vector2.SmoothDamp(_smoothDir, CanMove ? _locomotionInput : Vector2.zero, ref _smoothInputVector, _smoothVelocityValue);
-        Vector3 moveDir = new(_smoothDir.x, 0, _smoothDir.y);
-        Vector3 tempVelocity = _currentSpeed * moveDir.x * transform.right + _currentSpeed * moveDir.z * transform.forward;
-        _velocity += tempVelocity;
+        Vector3 cameraForward = Camera.main.transform.forward;
+        cameraForward.y = 0;
+        cameraForward.Normalize();
+        Vector3 cameraRight = Camera.main.transform.right;
+        cameraRight.y = 0;
+        cameraRight.Normalize();
+        Vector3 moveDir = cameraRight * _smoothDir.x + cameraForward * _smoothDir.y;
+        moveDir.Normalize();
+
+        if (moveDir != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+        }
+
+        Vector3 forwardMovement = transform.forward * _currentSpeed * moveDir.magnitude;
+        _velocity += forwardMovement;
 
         _controller.Move(Time.deltaTime * _velocity);
     }
@@ -128,19 +140,6 @@ public class PlayerController : MonoBehaviour, IPlayerController
         {
             _velocity.y += _gravity * Time.deltaTime;
         }
-    }
-
-    private void Look()
-    {
-        _camYRotation += _cameraInput.x * _sensivity * Time.deltaTime;
-
-        _camXRotation -= _cameraInput.y * _sensivity * Time.deltaTime;
-        _camXRotation = Mathf.Clamp(_camXRotation, -90f, 90f);
-
-        _currentRotation = new Vector3(_camXRotation, _camYRotation, 0);
-
-        //_camera.transform.DORotate(_currentRotation, 0.1f);
-        //transform.DORotate(new Vector3(0, _camYRotation, 0), 0.1f);
     }
 
     public void EnableCrouch()
