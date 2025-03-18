@@ -15,8 +15,18 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: eb5caa9dea0bfe14085799539051bb60
   m_SerializeEntries:
+  - m_GUID: 53c5be822edb3784fbf803016ad81a78
+    m_Address: PlayerConfig
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6346232cca986954e9957ca0222de724
     m_Address: InputActionAsset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9244c71000ba715419029ccee39d2b57
+    m_Address: Enemy
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

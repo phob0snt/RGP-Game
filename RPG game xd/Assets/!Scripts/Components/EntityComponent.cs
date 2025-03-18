@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class EntityComponent : MonoBehaviour, IEntityComponent
 {
-    public void Initialize()
+    public virtual void Initialize()
     {
 
     }
     
-    public void Enable()
+    public virtual void Enable()
     {
         gameObject.SetActive(true);
     }
 
-    public void Disable()
+    public virtual void Disable()
     {
         gameObject.SetActive(false);
     }

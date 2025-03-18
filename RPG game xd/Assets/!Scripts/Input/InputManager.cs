@@ -13,6 +13,9 @@ public class InputManager : IInputManager, IAsyncInitializable
     private InputAction _cameraRotation;
     private InputAction _swordAttack;
     private InputAction _magicAttack;
+    private InputAction _jump;
+    private InputAction _block;
+    private InputAction _run;
 
 
     public InputManager(IAssetLoader loader)
@@ -28,12 +31,11 @@ public class InputManager : IInputManager, IAsyncInitializable
         _cameraRotation = _inputActionAsset.FindAction("Camera");
         _swordAttack = _inputActionAsset.FindAction("SwordAttack");
         _magicAttack = _inputActionAsset.FindAction("MagicAttack");
+        _jump = _inputActionAsset.FindAction("Jump");
+        _block = _inputActionAsset.FindAction("Block");
+        _run = _inputActionAsset.FindAction("Run");
 
-        _locomotion.Enable();
-        _crouch.Enable();
-        _cameraRotation.Enable();
-        _swordAttack.Enable();
-        _magicAttack.Enable();
+        _inputActionAsset.Enable();
 
         _locomotion.performed += ctx => EventManager.Broadcast(new LocomotionEvent() { LocomotionInput = ctx.ReadValue<Vector2>() });
         _locomotion.canceled += ctx => EventManager.Broadcast(new LocomotionEvent() { LocomotionInput = ctx.ReadValue<Vector2>() });
@@ -43,6 +45,26 @@ public class InputManager : IInputManager, IAsyncInitializable
         _crouch.canceled += PressCrouch;
         _swordAttack.performed += PressSwordAttack;
         _magicAttack.performed += PressMagicAttack;
+        _jump.performed += PressJump;
+        _block.performed += PressBlock;
+        _block.canceled += PressBlock;
+        _run.performed += PressRun;
+    }
+
+    private void PressRun(InputAction.CallbackContext context)
+    {
+        if (context.ReadValueAsButton())
+            EventManager.Broadcast(Events.RunEvent);
+    }
+
+    private void PressBlock(InputAction.CallbackContext context)
+    {
+        EventManager.Broadcast(new BlockPressEvent(){IsBlocking = context.ReadValueAsButton()});
+    }
+    private void PressJump(InputAction.CallbackContext context)
+    {
+        if (context.ReadValueAsButton())
+            EventManager.Broadcast(Events.JumpEvent);
     }
 
     private void PressCrouch(InputAction.CallbackContext context)

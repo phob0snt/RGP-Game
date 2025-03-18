@@ -8,4 +8,9 @@ public class LocomotionState : BasePlayerState
     {
         _playerController.Move();
     }
+
+    public override void Enter()
+    {
+        _animator.CrossFade("Sprint", 0.1f);
+    }
 }
