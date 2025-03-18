@@ -1,19 +1,38 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
+using Zenject;
 
-public class EnemyHandler : IEnemyHandler, IAsyncInitializable
+public class EnemyHandler : IEnemyHandler, IInitializable
 {
-    private readonly IAssetLoader _loader;
-    private readonly List<Enemy> _enemies = new();
-    public EnemyHandler(IAssetLoader loader)
+    private readonly List<IEnemy> _enemies = new();
+    private IEnemyFactory _factory;
+
+    public EnemyHandler(IEnemyFactory factory)
     {
-        _loader = loader;
+        _factory = factory;
     }
 
-    public async Task InitializeAsync()
+    public async void Initialize()
     {
-        var enemy = await _loader.LoadAssetAsync<GameObject>("Enemy");
-        _enemies.Add(enemy.GetComponent<Enemy>());
+        await Task.Delay(5000);
+        CreateEnemy();
+    }
+
+    public async void CreateEnemy()
+    {
+        IEnemy enemy = _factory.CreateEnemy();
+        _enemies.Add(enemy);
+        Vector3 randPos = new Vector3(Random.Range(-30, 30), 20, Random.Range(-30, 30)) + Player.Transform.position;
+        NavMeshHit hit;
+        while (!NavMesh.SamplePosition(randPos, out hit, 10, NavMesh.AllAreas))
+        {
+            Debug.Log("UNLUCK");
+            randPos = new Vector3(Random.Range(-30, 30), 0, Random.Range(-30, 30)) + Player.Transform.position;
+        }
+        enemy.SetPosition(hit.position);
+        await Task.Delay(1000);
+        enemy.SetTarget(Player.Transform);
     }
 }

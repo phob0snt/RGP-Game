@@ -1,9 +1,12 @@
 using System.Threading.Tasks;
+using UnityEngine;
 using Zenject;
 
 public class Player : Entity<PlayerConfig>
 {
     [Inject] private readonly IAssetLoader _loader;
+    public static Transform Transform => _self.transform;
+    private static Player _self;
     private Health _health;
     private MeleeComponent _melee;
     private BlockComponent _block;
@@ -12,6 +15,7 @@ public class Player : Entity<PlayerConfig>
 
     private async void Awake()
     {
+        _self = this;
         Initialize(await _loader.LoadAssetAsync<PlayerConfig>("PlayerConfig"));
     }
 
