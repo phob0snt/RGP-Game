@@ -36,13 +36,13 @@ public class Player : Entity<PlayerConfig>
         await _melee.Attack();
     }
 
-    // public async Task Block()
-    // {
-    //     await _block.Block();
-    // }
-
-    public async Task CastSpell()
+    public void Block()
     {
-        await _magic.CastSpell();
+        _block.Block();
+    }
+
+    public async Task CastSpell(MagicSpell _spell)
+    {
+        await _magic.CastSpell(_spell, gameObject.transform);
     }
 }

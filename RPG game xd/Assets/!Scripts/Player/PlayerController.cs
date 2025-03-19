@@ -182,7 +182,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
             return;
 
         _isMagic = true;
-        await _player.CastSpell();
+        await _player.CastSpell(Spell);
 
         _isMagic = false;
         

@@ -38,4 +38,9 @@ public class Enemy : Entity<EnemyConfig>, IEnemy
         _agent.Warp(position);
     }
 
+    public void TakeDamage(int damage)
+    {
+        _health.TakeDamage(damage);
+    }
+
 }

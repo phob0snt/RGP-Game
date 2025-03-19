@@ -1,12 +1,7 @@
 using UnityEngine;
 
-public class MagicSpell : BaseItem, IWeapon
+public class FireballSpell : MonoBehaviour
 {
-    public void Attack()
-    {
-        Debug.Log("Magic Attack");
-    }
-
     public GameObject spellPrefab;
     public int damage = 10;
 
@@ -26,13 +21,11 @@ public class MagicSpell : BaseItem, IWeapon
         light.range = 0;
     }
 
-    public void Cast(Transform caster)
+    public void Cast(Vector3 position, Vector3 direction)
     {
-        Vector3 spawnPos = new Vector3(caster.position.x, caster.position.y + 1f, caster.position.z);
-
-        GameObject fireball = Instantiate(spellPrefab, spawnPos, Quaternion.identity);
+        GameObject fireball = Instantiate(spellPrefab, position, Quaternion.identity);
         fireball.GetComponent<Spell>().damage = damage;
-        fireball.GetComponent<Rigidbody>().linearVelocity = caster.forward * 10;
+        fireball.GetComponent<Rigidbody>().linearVelocity = direction * 10;
     }
 
     public void StartCast()
