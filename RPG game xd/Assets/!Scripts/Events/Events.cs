@@ -12,6 +12,12 @@ public static class Events
     public static JumpEvent JumpEvent = new();
     public static BlockPressEvent BlockPressEvent = new();
     public static RunEvent RunEvent = new();
+    public static AttackStartedEvent AttackStartedEvent = new();
+    public static AttackEndedEvent AttackEndedEvent = new();
+    public static BlockStartedEvent BlockStartedEvent = new();
+    public static BlockEndedEvent BlockEndedEvent = new();
+    public static MagicStartedEvent MagicStartedEvent = new();
+    public static MagicEndedEvent MagicEndedEvent = new();
 }
 
 public class RunEvent : GameEvent {}
@@ -37,6 +43,12 @@ public class MouseMoveEvent : GameEvent
 }
 
 public class SystemsInitializedEvent : GameEvent {}
+public class AttackStartedEvent : GameEvent {}
+public class AttackEndedEvent : GameEvent {}
+public class BlockStartedEvent : GameEvent {}
+public class BlockEndedEvent : GameEvent {}
+public class MagicStartedEvent : GameEvent {}
+public class MagicEndedEvent : GameEvent {}
 
 //public class StartDialogueEvent : GameEvent
 //{

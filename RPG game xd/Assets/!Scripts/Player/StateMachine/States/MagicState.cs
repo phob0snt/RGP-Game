@@ -6,16 +6,7 @@ public class MagicState : BasePlayerState
 
     public override void Enter()
     {
-        _playerController.Spell.Enable();
-        _playerController.Spell.StartCast();
-        _playerController.Magic();
-        Debug.Log("Magic");
+        EventManager.Broadcast(Events.MagicStartedEvent);
         _animator.CrossFade("SpellCast", 0.1f);
-    }
-
-    public override void Exit()
-    {
-        _playerController.Spell.StopCast();
-        _playerController.Spell.Disable();
     }
 }

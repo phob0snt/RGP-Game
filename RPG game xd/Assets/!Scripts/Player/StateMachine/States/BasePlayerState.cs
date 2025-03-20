@@ -27,6 +27,6 @@ public abstract class BasePlayerState : IState
 
     public virtual void Exit()
     {
-        Debug.Log("Exit state");
+        Debug.Log("Exit state " + this);
     }
 }

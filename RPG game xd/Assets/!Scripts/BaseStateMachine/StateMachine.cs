@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class PlayerStateMachine
+public class StateMachine
 {
     private StateNode _currentState;
     private readonly Dictionary<Type, StateNode> _nodes = new();

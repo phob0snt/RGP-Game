@@ -2,49 +2,39 @@ using UnityEngine;
 
 public class MagicSpell : BaseItem, IWeapon
 {
+    [SerializeField] private GameObject _spellPrefab;
+    [SerializeField] private ParticleSystem _mainParticle;
+    [SerializeField] private ParticleSystem _subParticle;
+    [SerializeField] private Light _light;
+    [SerializeField] private int _damage = 10;
+
+    private void Awake()
+    {
+        _light.range = 0;
+    }
+
     public void Attack()
     {
         Debug.Log("Magic Attack");
     }
 
-    public GameObject spellPrefab;
-    public int damage = 10;
-
-    private ParticleSystem mainParticle;
-    private ParticleSystem subParticle;
-    private Light light;
-
-    private void Awake()
+    public void Cast(Transform root)
     {
-        mainParticle = GetComponent<ParticleSystem>();
-        subParticle = transform.GetChild(0).GetComponent<ParticleSystem>();
-        light = transform.GetChild(1).GetComponent<Light>();
-    }
-
-    private void Start()
-    {
-        light.range = 0;
-    }
-
-    public void Cast(Transform caster)
-    {
-        Vector3 spawnPos = new Vector3(caster.position.x, caster.position.y + 1f, caster.position.z);
-
-        GameObject fireball = Instantiate(spellPrefab, spawnPos, Quaternion.identity);
-        fireball.GetComponent<Spell>().damage = damage;
-        fireball.GetComponent<Rigidbody>().linearVelocity = caster.forward * 10;
+        GameObject fireball = Instantiate(_spellPrefab, root.position, Quaternion.identity);
+        fireball.GetComponent<Spell>().SetDamage(_damage);
+        fireball.GetComponent<Rigidbody>().linearVelocity = (root.right + (-root.forward * 0.75f) + (-root.up * 0.1f)) * 10;
     }
 
     public void StartCast()
     {
-        mainParticle.Play();
-        subParticle.Play();
-        light.range = 10;
+        _mainParticle.Play();
+        _subParticle.Play();
+        _light.range = 10;
     }
 
     public void StopCast(){
-        mainParticle.Stop();
-        subParticle.Stop();
-        light.range = 0;
+        _mainParticle.Stop();
+        _subParticle.Stop();
+        _light.range = 0;
     }
 }

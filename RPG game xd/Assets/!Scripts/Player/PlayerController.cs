@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -18,39 +19,30 @@ public class PlayerController : MonoBehaviour, IPlayerController
     [SerializeField] private float _crouchAnimDuration = 0.4f;
 
     private Player _player;
+    private PlayerCombatController _combat;
 
-    [field: SerializeField] public Sword Weapon {get; private set;}
-    [field: SerializeField] public Shield Shield {get; private set;}
-    [field: SerializeField] public MagicSpell Spell {get; private set;}
-     
-    
     private float _currentSpeed;
 
     private bool _isCrouching;
     
     private bool _isJumping;
 
-    private bool _isAttacking;
-
-    private bool _isBlocking;
-
     private bool _isRunning;
 
-    private bool _isMagic;
+    public bool IsAttacking {get; set;}
+
+    public bool IsBlocking {get; set;}
+
+    public bool IsMagic {get; set;}
 
     public bool CanMove { get; set; } = true;
     public bool CanLook { get; set; } = true;
 
-    private PlayerStateMachine _stateMachine;
+    private StateMachine _stateMachine;
 
     private Vector2 _locomotionInput;
     private Vector2 _cameraInput;
     private Vector2 _smoothDir;
-
-    private float _camYRotation;
-    private float _camXRotation;
-
-    private Vector3 _currentRotation;
     private Vector3 _velocity;
 
     private CharacterController _controller;
@@ -66,6 +58,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
     {
         _controller = GetComponent<CharacterController>();
         _player = GetComponent<Player>();
+        _combat = GetComponent<PlayerCombatController>();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -82,9 +75,6 @@ public class PlayerController : MonoBehaviour, IPlayerController
         EventManager.AddListener<CrouchPressEvent>((e) => ChangeCrouchState());
         EventManager.AddListener<JumpEvent>((e) => Jump());
         EventManager.AddListener<RunEvent>((e) => Run());
-        EventManager.AddListener<BlockPressEvent>(Block);
-        EventManager.AddListener<SwordAttackPressEvent>((e) => Attack());
-        EventManager.AddListener<MagicAttackPressEvent>((e) => Magic());
     }
 
     
@@ -96,9 +86,6 @@ public class PlayerController : MonoBehaviour, IPlayerController
         EventManager.RemoveListener<CrouchPressEvent>((e) => ChangeCrouchState());
         EventManager.RemoveListener<JumpEvent>((e) => Jump());
         EventManager.RemoveListener<RunEvent>((e) => Run());
-        EventManager.RemoveListener<BlockPressEvent>(Block);
-        EventManager.RemoveListener<SwordAttackPressEvent>((e) => Attack());
-        EventManager.RemoveListener<MagicAttackPressEvent>((e) => Magic());
     }
 
     private void SetMovementDir(LocomotionEvent e) => _locomotionInput = e.LocomotionInput;
@@ -106,7 +93,7 @@ public class PlayerController : MonoBehaviour, IPlayerController
 
     private void ConfigureStateMachine()
     {
-        _stateMachine = new PlayerStateMachine();
+        _stateMachine = new StateMachine();
 
         var locomotionState = new LocomotionState(this, _animator);
         var crouchState = new CrouchState(this, _animator);
@@ -124,12 +111,13 @@ public class PlayerController : MonoBehaviour, IPlayerController
         _stateMachine.AddAnyTransition(jumpState, new FuncPredicate(() => _isJumping));
         _stateMachine.AddTransition(jumpState, idleState, new FuncPredicate(() => !_isJumping));
         _stateMachine.AddTransition(jumpState, locomotionState, new FuncPredicate(() => _locomotionInput != Vector2.zero));
-        _stateMachine.AddAnyTransition(AttackState, new FuncPredicate(() => _isAttacking));
-        _stateMachine.AddAnyTransition(BlockState, new FuncPredicate(() => _isBlocking));
-        _stateMachine.AddTransition(AttackState, idleState, new FuncPredicate(() => !_isAttacking));
-        _stateMachine.AddTransition(BlockState, idleState, new FuncPredicate(() => !_isBlocking));
-        _stateMachine.AddAnyTransition(MagicState, new FuncPredicate(() => _isMagic));
-        _stateMachine.AddTransition(MagicState, idleState, new FuncPredicate(() => !_isMagic));
+        _stateMachine.AddTransition(idleState, AttackState, new FuncPredicate(() => IsAttacking));
+        _stateMachine.AddTransition(locomotionState, AttackState, new FuncPredicate(() => IsAttacking));
+        _stateMachine.AddTransition(idleState, BlockState, new FuncPredicate(() => IsBlocking));
+        _stateMachine.AddTransition(AttackState, idleState, new FuncPredicate(() => !IsAttacking));
+        _stateMachine.AddTransition(BlockState, idleState, new FuncPredicate(() => !IsBlocking));
+        _stateMachine.AddTransition(idleState, MagicState, new FuncPredicate(() => IsMagic));
+        _stateMachine.AddTransition(MagicState, idleState, new FuncPredicate(() => !IsMagic));
 
 
         _stateMachine.SetState(idleState);
@@ -155,37 +143,23 @@ public class PlayerController : MonoBehaviour, IPlayerController
         //}
     }
 
+    public void CompleteAttack()
+    {
+        IsAttacking = false;
+        Debug.Log("COMPLETE ATTAK");
+        EventManager.Broadcast(Events.AttackEndedEvent);
+    }
+
+    public void CompleteMagic()
+    {
+        IsMagic = false;
+        Debug.Log("COMPLETE Magic");
+        EventManager.Broadcast(Events.MagicEndedEvent);
+    }
+
     public void Run()
     {
         _isRunning = true;
-    }
-
-    public void Block(BlockPressEvent e)
-    {
-        _isBlocking = e.IsBlocking;
-    }
-
-    public async void Attack()
-    {
-        if(_isAttacking)
-            return;
-
-        _isAttacking = true;
-        await _player.Attack();
-
-        _isAttacking = false;
-    }
-
-    public async void Magic()
-    {
-        if(_isMagic)
-            return;
-
-        _isMagic = true;
-        await _player.CastSpell(Spell);
-
-        _isMagic = false;
-        
     }
 
     private void CheckGroundStatus()

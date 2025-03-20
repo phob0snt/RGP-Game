@@ -1,13 +1,33 @@
-using System.Threading.Tasks;
+using System;
 using UnityEngine;
 
 public class MagicComponent : EntityComponent
 {
-    public async Task CastSpell(MagicSpell _spell, Transform caster)
+    [SerializeField] private MagicSpell _spell;
+    [SerializeField] private Transform _castRoot;
+
+    private event Action<MagicStartedEvent> _magicStarted;
+    private event Action<MagicEndedEvent> _magicEnded;
+
+    private void Awake()
     {
-        Debug.Log("Magic spell");
-        await Task.Delay(1000);
-        _spell.Cast(caster);
-        Debug.Log("Magic spell done");
+        _magicStarted = (e) => _spell.StartCast();
+        _magicEnded = (e) => _spell.StopCast();
+    }
+    
+    private void OnEnable()
+    {
+        EventManager.AddListener(_magicStarted);
+        EventManager.AddListener(_magicEnded);
+    }
+
+    private void OnDisable()
+    {
+        EventManager.RemoveListener(_magicStarted);
+        EventManager.RemoveListener(_magicEnded);
+    }
+    public void CastSpell()
+    {
+        _spell.Cast(_castRoot);
     }
 }

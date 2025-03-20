@@ -10,13 +10,12 @@ public class BlockState : BasePlayerState
     }
     public override void Enter()
     {
-        _playerController.Shield.Enable();
-        _playerController.Shield.Block();
-         _animator.CrossFade("BlockingLoop", 0.1f);
+        EventManager.Broadcast(Events.BlockStartedEvent);
+        _animator.CrossFade("BlockingLoop", 0.1f);
     }
 
     public override void Exit()
     {
-        _playerController.Shield.Disable();
+        EventManager.Broadcast(Events.BlockEndedEvent);
     }
 }
