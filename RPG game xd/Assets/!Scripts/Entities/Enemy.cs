@@ -36,7 +36,7 @@ public class Enemy : Entity<EnemyConfig>, IEnemy
 
     private void Update()
     {
-        _stateMachine?.Update();
+        //_stateMachine?.Update();
         if (_target != null)
             _agent.SetDestination(_target.position);
     }

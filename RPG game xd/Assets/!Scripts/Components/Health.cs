@@ -11,6 +11,7 @@ public class Health : EntityComponent
     
     public void TakeDamage(int damage)
     {
+        Debug.Log("TAKE DAMAGE");
         _value -= damage;
         if (_value <= 0)
         {
@@ -21,6 +22,7 @@ public class Health : EntityComponent
 
     private void Die()
     {
+        Destroy(gameObject);
         Debug.Log("I'm dead!");
     }
 }
